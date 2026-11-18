@@ -47,3 +47,11 @@ func HttpGetAdvertisementPhotos(t *testing.T, token string, id string) *http.Res
 		Expect(t).
 		End().Response
 }
+
+// HttpDeleteAdvertisement выполняет DELETE-запрос для удаления объявления по ID.
+func HttpDeleteAdvertisement(t *testing.T, token string, id string) *http.Response {
+	return apiRunner.GetRunner().Auth(token).Create().Delete(path.AdvertisementPath).
+		Query("id", id).
+		Expect(t).
+		End().Response
+}

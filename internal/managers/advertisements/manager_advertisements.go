@@ -64,3 +64,12 @@ func GetAdvertisementPhotos(t *testing.T, token string, id string, expectedStatu
 	require.NoError(t, err)
 	return string(responseBody)
 }
+
+// DeleteAdvertisement удаляет объявление по ID (нужно для очистки после теста).
+func DeleteAdvertisement(t *testing.T, token string, id string, expectedStatusCode int) {
+	rawResponse := advertisements.HttpDeleteAdvertisement(t, token, id)
+	defer rawResponse.Body.Close()
+
+	require.Equalf(t, expectedStatusCode, rawResponse.StatusCode,
+		"HTTP status code должен быть %d", expectedStatusCode)
+}
