@@ -53,3 +53,4 @@ TEST_PASSWORD=your_password
 ```bash
   golangci-lint run
 ```
+**Важно:** Для запуска тестов на создание объявления в папке `tests/scenarios/addAdvertisement/` должна лежать картинка `test_photo.jpg`.
