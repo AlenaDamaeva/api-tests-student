@@ -1,0 +1,2 @@
+This is a test file for checking invalid photo format.
+It is not an image.

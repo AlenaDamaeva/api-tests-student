@@ -11,20 +11,47 @@ import (
 )
 
 // HttpPostAdvertisement отправляет POST-запрос на создание объявления.
-// Передает текстовые поля и файл картинки через multipart/form-data.
-func HttpPostAdvertisement(t *testing.T, token string, title, description string, price, quantity int, photoPath string) *http.Response {
-	return apiRunner.GetRunner().Auth(token).Create().Post(path.AdvertisementPath).
-		MultipartFormData("title", title).
-		MultipartFormData("description", description).
-		MultipartFormData("price", strconv.Itoa(price)).
-		MultipartFormData("quantity", strconv.Itoa(quantity)).
-		MultipartFile("photos", photoPath).
-		Expect(t).
-		End().Response
+func HttpPostAdvertisement(
+	t *testing.T,
+	token string,
+	title, description string,
+	price, quantity int,
+	photoPath string,
+) *http.Response {
+	return HttpPostAdvertisementRaw(
+		t,
+		token,
+		title,
+		description,
+		strconv.Itoa(price),
+		strconv.Itoa(quantity),
+		[]string{photoPath},
+	)
 }
 
-// HttpGetAdvertisementByID запрашивает одно объявление по его ID.
-// ID передается как параметр запроса (query).
+// HttpPostAdvertisementRaw отправляет POST-запрос
+// с произвольными значениями цены, количества и фотографиями.
+func HttpPostAdvertisementRaw(
+	t *testing.T,
+	token string,
+	title, description string,
+	price, quantity string,
+	photoPaths []string,
+) *http.Response {
+	request := apiRunner.GetRunner().Auth(token).Create().Post(path.AdvertisementPath).
+		MultipartFormData("title", title).
+		MultipartFormData("description", description).
+		MultipartFormData("price", price).
+		MultipartFormData("quantity", quantity)
+
+	for _, photo := range photoPaths {
+		request = request.MultipartFile("photos", photo)
+	}
+
+	return request.Expect(t).End().Response
+}
+
+// HttpGetAdvertisementByID получает объявление по ID.
 func HttpGetAdvertisementByID(t *testing.T, token string, id string) *http.Response {
 	return apiRunner.GetRunner().Auth(token).Create().Get(path.AdvertisementPath).
 		Query("id", id).
@@ -33,7 +60,6 @@ func HttpGetAdvertisementByID(t *testing.T, token string, id string) *http.Respo
 }
 
 // HttpGetAdvertisementsBySearch ищет объявления по названию.
-// Название передается в параметре search.
 func HttpGetAdvertisementsBySearch(t *testing.T, token string, searchTitle string) *http.Response {
 	return apiRunner.GetRunner().Auth(token).Create().Get(path.AdvertisementsPath).
 		Query("search", searchTitle).
@@ -41,14 +67,14 @@ func HttpGetAdvertisementsBySearch(t *testing.T, token string, searchTitle strin
 		End().Response
 }
 
-// HttpGetAdvertisementPhotos запрашивает список фотографий для объявления по ID.
+// HttpGetAdvertisementPhotos получает фотографии объявления по ID.
 func HttpGetAdvertisementPhotos(t *testing.T, token string, id string) *http.Response {
 	return apiRunner.GetRunner().Auth(token).Create().Get(fmt.Sprintf(path.AdvertisementPhotosPath, id)).
 		Expect(t).
 		End().Response
 }
 
-// HttpDeleteAdvertisement выполняет DELETE-запрос для удаления объявления по ID.
+// HttpDeleteAdvertisement удаляет объявление по ID.
 func HttpDeleteAdvertisement(t *testing.T, token string, id string) *http.Response {
 	return apiRunner.GetRunner().Auth(token).Create().Delete(path.AdvertisementPath).
 		Query("id", id).
